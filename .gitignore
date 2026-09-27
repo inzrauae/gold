@@ -1,0 +1,4 @@
+goldprice-app/.env
+goldprice-app/storage/*/*
+!goldprice-app/storage/*/.gitkeep
+goldprice-app/storage/*.sqlite
