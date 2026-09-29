@@ -79,7 +79,7 @@ cp goldprice-app/.env.example goldprice-app/.env
 php goldprice-app/cli/migrate.php
 php goldprice-app/cli/create-admin.php --email=you@example.lk
 php goldprice-app/cli/update-prices.php        # needs real API keys in .env
-php -S 127.0.0.1:8000 -t public_html public_html/index.php
+php -S 127.0.0.1:8000 -t public_html public_html/router.php
 ```
 
 ## Tests
