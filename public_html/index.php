@@ -40,6 +40,10 @@ $router->get('/data-sources', [new PageController(), 'dataSources']);
 $router->get('/gold-price-widget', [new PageController(), 'widgetBuilder']);
 $router->get('/gold-price-widget/how-to-use', [new PageController(), 'widgetGuide']);
 $router->get('/gold-price-api', [new PageController(), 'apiDocs']);
+$router->get('/about', [new PageController(), 'about']);
+$router->get('/contact', [new PageController(), 'contact']);
+$router->get('/privacy', [new PageController(), 'privacy']);
+$router->get('/terms', [new PageController(), 'terms']);
 
 // History
 $router->get('/gold-price-history', [new HistoryController(), 'index']);
@@ -56,6 +60,9 @@ $router->get('/feed.xml', [new FeedController(), 'rss']);
 $router->get('/widgets/gold-price.js', [new FeedController(), 'widgetScript']);
 $router->get('/sitemap.xml', [new FeedController(), 'sitemap']);
 $router->get('/robots.txt', [new FeedController(), 'robots']);
+$router->get('/llms.txt', [new FeedController(), 'llms']);
+$router->get('/og-image.png', [new FeedController(), 'ogImage']);
+$router->get('/logo.png', [new FeedController(), 'logo']);
 $router->get('/healthz', [new FeedController(), 'healthz']);
 $router->get('/cron/run', [new FeedController(), 'cronRun']);
 $router->post('/cron/run', [new FeedController(), 'cronRun']);

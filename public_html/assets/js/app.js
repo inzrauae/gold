@@ -57,7 +57,13 @@
 
         function draw() {
             var parent = canvas.parentElement;
-            var cssWidth = Math.max(280, parent ? parent.clientWidth : canvas.width);
+            var parentContentWidth = canvas.width;
+            if (parent) {
+                var parentStyle = window.getComputedStyle(parent);
+                var horizontalPadding = (parseFloat(parentStyle.paddingLeft) || 0) + (parseFloat(parentStyle.paddingRight) || 0);
+                parentContentWidth = parent.clientWidth - horizontalPadding;
+            }
+            var cssWidth = Math.max(280, parentContentWidth);
             var aspect = cssWidth < 480 ? 0.62 : (320 / 900);
             var cssHeight = Math.max(200, Math.min(420, Math.round(cssWidth * aspect)));
             var dpr = window.devicePixelRatio || 1;

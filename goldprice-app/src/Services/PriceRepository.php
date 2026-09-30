@@ -89,6 +89,16 @@ class PriceRepository
         return $this->historyBetween($from, $to);
     }
 
+    /** Most recent daily_history row strictly before the given date (handles weekends/holiday gaps). */
+    public function previousDayHistory(string $beforeDate): ?array
+    {
+        $stmt = Database::connection()->prepare(
+            'SELECT * FROM daily_history WHERE date < ? ORDER BY date DESC LIMIT 1'
+        );
+        $stmt->execute([$beforeDate]);
+        return $stmt->fetch() ?: null;
+    }
+
     /** @return array<int, int> years that have at least one row, descending */
     public function historyYears(): array
     {

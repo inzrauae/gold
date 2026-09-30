@@ -279,6 +279,24 @@ code {
     padding-top: 32px;
 }
 
+.lede {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    line-height: 1.6;
+    max-width: 68ch;
+    margin: 0.6em 0 1.2em;
+}
+
+.breadcrumb {
+    color: var(--text-faint);
+    font-size: 0.82rem;
+    margin-bottom: 0.6em;
+}
+
+.breadcrumb a {
+    color: var(--text-faint);
+}
+
 .as-of {
     color: var(--text-faint);
     font-size: 0.9rem;

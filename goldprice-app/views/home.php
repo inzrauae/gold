@@ -7,15 +7,26 @@ use App\Core\View;
 /** @var bool $marketOpen */
 /** @var array $news */
 /** @var array $faq */
+/** @var array|null $trend */
+/** @var string $date */
 ?>
 <section class="hero wrap">
 <?php if ($latest): ?>
+    <h1>Gold Price Today in Sri Lanka - <?= View::e($date) ?></h1>
+    <p class="lede">
+        Today's verified gold price in Sri Lanka (Colombo and nationwide) is
+        <strong>LKR <?= number_format((float) $latest['price_22k_gram'], 2) ?> per gram for 22K</strong>
+        and <strong>LKR <?= number_format((float) $latest['price_24k_gram'], 2) ?> per gram for 24K</strong>,
+        live as of <?= date('j M Y, g:i A', strtotime($latest['created_at'])) ?>.
+        <?php if ($trend): ?><?= View::e($trend['sentence']) ?><?php endif; ?>
+    </p>
     <p class="as-of">
         As of <?= date('j M Y, g:i A', strtotime($latest['created_at'])) ?> ·
         <span class="badge <?= $latest['verification_mode'] === 'dual_source' ? 'badge-ok' : 'badge-warn' ?>">
             <?= $latest['verification_mode'] === 'dual_source' ? 'Verified: two independent sources' : 'Verified: single source' ?>
         </span>
         · Markets <?= $marketOpen ? 'open' : 'closed' ?>
+        · Updated daily
     </p>
     <div class="price-grid">
         <?php foreach ([24, 22, 21, 18] as $k): ?>
@@ -42,9 +53,10 @@ use App\Core\View;
 <?php endif; ?>
 </section>
 
-<section class="wrap">
-    <h2>Gold Price History Chart</h2>
-    <canvas id="price-chart" width="900" height="320" aria-label="Gold price history chart" role="img"></canvas>
+<section class="wrap" id="chart">
+    <h2>Gold Price in Sri Lanka - Chart</h2>
+    <p>Interactive gold price chart for Sri Lanka showing the last 90 days across all four purities.</p>
+    <canvas id="price-chart" width="900" height="320" aria-label="Gold price in Sri Lanka - chart, last 90 days" role="img"></canvas>
     <script id="chart-data" type="application/json"><?= json_encode(array_map(fn ($r) => [
         'date' => $r['date'],
         '24k' => (float) $r['price_24k_gram'],
@@ -83,13 +95,13 @@ use App\Core\View;
 </section>
 
 <section class="wrap">
-    <h2>Price Table</h2>
+    <h2>Gold Price Table - Sri Lanka Today</h2>
     <table class="price-table">
-        <thead><tr><th>Purity</th><th>Per gram</th><th>Per 8g (pawn)</th><th>Per troy oz</th></tr></thead>
+        <thead><tr><th>Purity</th><th>Per gram</th><th>Per 8g (pawn/pound)</th><th>Per troy oz</th></tr></thead>
         <tbody>
         <?php foreach ([24, 22, 21, 18] as $k): ?>
             <tr>
-                <td><?= $k ?>K</td>
+                <td><a href="/gold-price-<?= $k ?>k-sri-lanka"><?= $k ?>K (<?= $k ?> carat)</a></td>
                 <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_gram"], 2) : '-' ?></td>
                 <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_8g"], 2) : '-' ?></td>
                 <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_oz"], 2) : '-' ?></td>
@@ -97,6 +109,11 @@ use App\Core\View;
         <?php endforeach; ?>
         </tbody>
     </table>
+    <p class="fine-print">
+        Full breakdown by unit: <a href="/gold-price-per-gram-sri-lanka">gold price per gram</a> ·
+        <a href="/gold-price-per-8-grams-sri-lanka">gold pawn / pound price (8g)</a> ·
+        <a href="/gold-price-history">daily price history &amp; chart</a>.
+    </p>
 </section>
 
 <section class="wrap">

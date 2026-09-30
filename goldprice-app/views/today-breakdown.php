@@ -5,13 +5,23 @@ use App\Core\View;
 /** @var array|null $latest */
 /** @var array $steps */
 /** @var array $logs */
+/** @var array|null $trend */
+/** @var string $date */
 ?>
 <section class="wrap">
-    <h1>Gold Price Today in Sri Lanka - Step by Step</h1>
+    <h1>Gold Price Today in Sri Lanka - <?= View::e($date) ?> - Step by Step</h1>
 
     <?php if ($latest): ?>
+    <p class="lede">
+        As of <?= date('j M Y, g:i A', strtotime($latest['created_at'])) ?>, gold price today in Colombo and
+        across Sri Lanka is <strong>LKR <?= number_format((float) $latest['price_22k_gram'], 2) ?> per gram (22K)</strong>
+        and <strong>LKR <?= number_format((float) $latest['price_24k_gram'], 2) ?> per gram (24K)</strong>, verified
+        against <?= View::e($latest['verification_mode']) === 'dual_source' ? 'two independent sources' : 'a single source' ?>.
+        <?php if ($trend): ?><?= View::e($trend['sentence']) ?><?php endif; ?>
+        Below is exactly how that number was produced, input by input.
+    </p>
     <p class="as-of">As of <?= date('j M Y, g:i A', strtotime($latest['created_at'])) ?>
-        (<?= View::e($latest['verification_mode']) ?>)</p>
+        (<?= View::e($latest['verification_mode']) ?>) · Updated daily</p>
 
     <h2>Live Inputs</h2>
     <table class="price-table">

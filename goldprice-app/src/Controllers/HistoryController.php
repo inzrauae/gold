@@ -6,6 +6,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\View;
 use App\Services\PriceRepository;
+use App\Services\Seo;
 
 class HistoryController
 {
@@ -22,9 +23,15 @@ class HistoryController
         $recent = $this->repository->historyBetween(date('Y-m-d', strtotime('-90 days')), date('Y-m-d'));
 
         Response::html(View::layout('history-index', [
-            'title' => 'Gold Price History - Sri Lanka Daily Archive',
-            'description' => 'Daily archive of verified gold prices in Sri Lanka, organised by year and month.',
+            'title' => 'Gold Price History & Chart - Sri Lanka Daily Archive',
+            'description' => 'Daily archive and interactive chart of verified gold prices in Sri Lanka (24K, 22K, 21K, 18K), organised by year and month.',
             'canonical' => '/gold-price-history',
+            'jsonLd' => [
+                Seo::breadcrumbSchema([
+                    ['name' => 'Home', 'url' => '/'],
+                    ['name' => 'Price History', 'url' => '/gold-price-history'],
+                ]),
+            ],
             'years' => $years,
             'recent' => array_reverse($recent),
             'firstDate' => $this->repository->firstHistoryDate(),
@@ -44,6 +51,13 @@ class HistoryController
             'title' => "Gold Price History {$year} - Sri Lanka",
             'description' => "Monthly gold price history for {$year} in Sri Lanka.",
             'canonical' => "/gold-price-history/{$year}",
+            'jsonLd' => [
+                Seo::breadcrumbSchema([
+                    ['name' => 'Home', 'url' => '/'],
+                    ['name' => 'Price History', 'url' => '/gold-price-history'],
+                    ['name' => (string) $year, 'url' => "/gold-price-history/{$year}"],
+                ]),
+            ],
             'year' => (int) $year,
             'rows' => $rows,
         ]));
@@ -63,6 +77,14 @@ class HistoryController
             'title' => "Gold Price History {$monthName} {$year} - Sri Lanka",
             'description' => "Daily gold price history for {$monthName} {$year} in Sri Lanka.",
             'canonical' => "/gold-price-history/{$year}/{$month}",
+            'jsonLd' => [
+                Seo::breadcrumbSchema([
+                    ['name' => 'Home', 'url' => '/'],
+                    ['name' => 'Price History', 'url' => '/gold-price-history'],
+                    ['name' => (string) $year, 'url' => "/gold-price-history/{$year}"],
+                    ['name' => $monthName, 'url' => "/gold-price-history/{$year}/{$month}"],
+                ]),
+            ],
             'year' => (int) $year,
             'month' => (int) $month,
             'monthName' => $monthName,

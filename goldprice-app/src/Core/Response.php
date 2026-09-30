@@ -39,6 +39,14 @@ class Response
         echo $content;
     }
 
+    public static function image(string $binary, string $contentType = 'image/png', int $cacheSeconds = 3600): void
+    {
+        http_response_code(200);
+        header("Content-Type: {$contentType}");
+        header("Cache-Control: public, max-age={$cacheSeconds}");
+        echo $binary;
+    }
+
     public static function redirect(string $to, int $status = 302): void
     {
         http_response_code($status);
