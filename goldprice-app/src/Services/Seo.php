@@ -59,6 +59,7 @@ class Seo
             'name' => self::siteName(),
             'url' => self::siteUrl('/'),
             'logo' => self::logoUrl(),
+            'areaServed' => ['@type' => 'Country', 'name' => 'Sri Lanka'],
         ];
     }
 
@@ -70,7 +71,8 @@ class Seo
             'name' => self::siteName(),
             'url' => self::siteUrl('/'),
             'publisher' => ['@id' => self::siteUrl('/#organization')],
-            'inLanguage' => 'en-LK',
+            'inLanguage' => ['en-LK', 'si-LK', 'ta-LK'],
+            'about' => ['@type' => 'Thing', 'name' => 'Gold price in Sri Lanka'],
         ];
     }
 
@@ -206,6 +208,8 @@ class Seo
         // [path, lastmod, changefreq, priority]
         $entries = [
             ['/', $priceLastmod, 'hourly', '1.0'],
+            ['/si', $priceLastmod, 'hourly', '0.8'],
+            ['/ta', $priceLastmod, 'hourly', '0.8'],
             ['/gold-price-today-sri-lanka', $priceLastmod, 'hourly', '0.9'],
             ['/gold-price-24k-sri-lanka', $priceLastmod, 'hourly', '0.9'],
             ['/gold-price-22k-sri-lanka', $priceLastmod, 'hourly', '0.9'],
@@ -227,15 +231,23 @@ class Seo
         foreach ($repo->historyYears() as $year) {
             $entries[] = ["/gold-price-history/{$year}", date('Y-m-d'), 'monthly', '0.4'];
             for ($m = 1; $m <= 12; $m++) {
+                if (!$repo->historyForMonth((int) $year, $m)) {
+                    continue;
+                }
                 $entries[] = [sprintf('/gold-price-history/%d/%02d', $year, $m), date('Y-m-d'), 'monthly', '0.3'];
             }
         }
 
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
+        $alt = '';
+        foreach (['en-LK' => '/', 'si-LK' => '/si', 'ta-LK' => '/ta', 'x-default' => '/'] as $hl => $ap) {
+            $alt .= '<xhtml:link rel="alternate" hreflang="' . $hl . '" href="' . htmlspecialchars(self::siteUrl($ap), ENT_XML1) . '"/>';
+        }
         foreach ($entries as [$path, $lastmod, $changefreq, $priority]) {
             $xml .= '  <url>'
                 . '<loc>' . htmlspecialchars(self::siteUrl($path), ENT_XML1) . '</loc>'
+                . (in_array($path, ['/', '/si', '/ta'], true) ? $alt : '')
                 . '<lastmod>' . $lastmod . '</lastmod>'
                 . '<changefreq>' . $changefreq . '</changefreq>'
                 . '<priority>' . $priority . '</priority>'
@@ -328,6 +340,8 @@ class Seo
             '- 18K gold price: ' . self::siteUrl('/gold-price-18k-sri-lanka'),
             '- Price per gram (all purities): ' . self::siteUrl('/gold-price-per-gram-sri-lanka'),
             '- Price per 8 grams / pawn / pound (all purities): ' . self::siteUrl('/gold-price-per-8-grams-sri-lanka'),
+            '- Sinhala (සිංහල) gold price today: ' . self::siteUrl('/si'),
+            '- Tamil (தமிழ்) gold price today: ' . self::siteUrl('/ta'),
             '- Daily history archive: ' . self::siteUrl('/gold-price-history'),
             '- Data sources & verification methodology: ' . self::siteUrl('/data-sources'),
             '- About / how this site works: ' . self::siteUrl('/about'),

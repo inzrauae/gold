@@ -208,3 +208,19 @@ checking first: machine-translating financial figures/terminology carries real a
 risk, and it's an ongoing content commitment (three languages to keep in sync going
 forward), not a one-time code change - genuinely the user's call on scope and approach,
 not a default to silently take.
+
+## 7. Sri Lanka localisation + technical pass (2026-10-01)
+
+- **Sinhala and Tamil pages** at `/si` and `/ta` (`Services/Lang.php`, `views/home-local.php`): translated
+  title, meta, H1, direct-answer paragraph, price cards/table and a 4-question FAQ with FAQPage schema,
+  live prices from the same verified source. Reciprocal `hreflang` (en-LK, si-LK, ta-LK, x-default) in
+  the page head and in `sitemap.xml` (xhtml:link). Header language switcher, footer links, Noto Sans
+  Sinhala/Tamil fonts loaded only on those pages. **Have a native speaker review the copy** before promoting it.
+- **Technical**: HEAD requests now work (previously 404, which some crawlers/uptime tools use);
+  security headers; `Cache-Control: public, max-age=120, stale-while-revalidate=600` on public pages
+  (admin/cron `no-store`); cache-busted CSS; `/favicon.ico`, `/manifest.webmanifest`, apple-touch-icon;
+  `geo.region=LK`, `og:locale:alternate`; Organization `areaServed: Sri Lanka`; sitemap no longer lists
+  history months with no data; `llms.txt` lists the Sinhala/Tamil pages.
+- **Still needs doing outside the code** (cannot be done from this repo): deploy on the real domain with
+  HTTPS, set `APP_URL` in `.env`, submit the sitemap to Google Search Console and Bing, verify Rich Results,
+  and build Sri Lankan backlinks. Rankings cannot be guaranteed - they depend on domain authority and competition.

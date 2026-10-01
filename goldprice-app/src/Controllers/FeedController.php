@@ -28,6 +28,22 @@ class FeedController
         Response::text(Seo::robotsTxt());
     }
 
+    public function manifest(Request $request): void
+    {
+        Response::text(json_encode([
+            'name' => Seo::siteName(),
+            'short_name' => 'Gold Price LK',
+            'description' => 'Verified live gold prices in Sri Lanka - 24K, 22K, 21K, 18K.',
+            'start_url' => '/',
+            'scope' => '/',
+            'display' => 'standalone',
+            'lang' => 'en-LK',
+            'background_color' => '#08070a',
+            'theme_color' => '#08070a',
+            'icons' => [['src' => '/logo.png', 'sizes' => 'any', 'type' => 'image/png', 'purpose' => 'any']],
+        ], JSON_UNESCAPED_SLASHES), 200, 'application/manifest+json');
+    }
+
     public function llms(Request $request): void
     {
         Response::text(Seo::llmsTxt(), 200, 'text/markdown');

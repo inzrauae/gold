@@ -10,6 +10,15 @@ use App\Core\View;
 /** @var array|null $trend */
 /** @var string $date */
 ?>
+<?php
+$prev22 = null;
+if ($latest) {
+    $latestDay = date('Y-m-d', strtotime($latest['created_at']));
+    foreach (array_reverse($chart) as $row) {
+        if ($row['date'] < $latestDay) { $prev22 = (float) $row['price_22k_gram']; break; }
+    }
+}
+?>
 <section class="hero wrap">
 <?php if ($latest): ?>
     <h1>Gold Price Today in Sri Lanka - <?= View::e($date) ?></h1>
@@ -28,6 +37,22 @@ use App\Core\View;
         · Markets <?= $marketOpen ? 'open' : 'closed' ?>
         · Updated daily
     </p>
+    <div class="spotlight">
+        <div>
+            <div class="spot-label">22K gold &middot; per gram</div>
+            <div class="spot-price"><small>LKR</small> <?= number_format((float) $latest['price_22k_gram'], 2) ?></div>
+        </div>
+        <?php if ($prev22 !== null && $prev22 > 0):
+            $delta = (float) $latest['price_22k_gram'] - $prev22;
+            $pct = $delta / $prev22 * 100;
+            $dir = abs($delta) < 0.005 ? 'flat' : ($delta > 0 ? 'up' : 'down'); ?>
+        <div class="chg chg-<?= $dir ?>">
+            <span class="chg-arrow" aria-hidden="true"><?= $dir === 'up' ? '&#9650;' : ($dir === 'down' ? '&#9660;' : '&#9644;') ?></span>
+            <?= $dir === 'flat' ? 'Unchanged' : number_format(abs($delta), 2) . ' (' . number_format(abs($pct), 2) . '%)' ?>
+            <span class="chg-note">vs previous day</span>
+        </div>
+        <?php endif; ?>
+    </div>
     <div class="price-grid">
         <?php foreach ([24, 22, 21, 18] as $k): ?>
         <a class="price-card" href="/gold-price-<?= $k ?>k-sri-lanka">
@@ -56,6 +81,13 @@ use App\Core\View;
 <section class="wrap" id="chart">
     <h2>Gold Price in Sri Lanka - Chart</h2>
     <p>Interactive gold price chart for Sri Lanka showing the last 90 days across all four purities.</p>
+    <div class="chart-tools">
+        <div class="seg" role="group" aria-label="Chart range">
+            <button type="button" class="seg-btn" data-range="7">7D</button>
+            <button type="button" class="seg-btn" data-range="30">30D</button>
+            <button type="button" class="seg-btn is-active" data-range="90">90D</button>
+        </div>
+    </div>
     <canvas id="price-chart" width="900" height="320" aria-label="Gold price in Sri Lanka - chart, last 90 days" role="img"></canvas>
     <script id="chart-data" type="application/json"><?= json_encode(array_map(fn ($r) => [
         'date' => $r['date'],
@@ -66,7 +98,7 @@ use App\Core\View;
     ], $chart)) ?></script>
 </section>
 
-<section class="wrap calculator-section">
+<section class="wrap calculator-section" id="calc">
     <h2>Gold Price Calculator</h2>
     <div class="calculator" id="calculator"
          data-price-24k="<?= $latest ? (float) $latest['price_24k_gram'] : 0 ?>"
@@ -96,15 +128,15 @@ use App\Core\View;
 
 <section class="wrap">
     <h2>Gold Price Table - Sri Lanka Today</h2>
-    <table class="price-table">
+    <table class="price-table stack">
         <thead><tr><th>Purity</th><th>Per gram</th><th>Per 8g (pawn/pound)</th><th>Per troy oz</th></tr></thead>
         <tbody>
         <?php foreach ([24, 22, 21, 18] as $k): ?>
             <tr>
-                <td><a href="/gold-price-<?= $k ?>k-sri-lanka"><?= $k ?>K (<?= $k ?> carat)</a></td>
-                <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_gram"], 2) : '-' ?></td>
-                <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_8g"], 2) : '-' ?></td>
-                <td>LKR <?= $latest ? number_format((float) $latest["price_{$k}k_oz"], 2) : '-' ?></td>
+                <td data-label="Purity"><a href="/gold-price-<?= $k ?>k-sri-lanka"><?= $k ?>K (<?= $k ?> carat)</a></td>
+                <td data-label="Per gram">LKR <?= $latest ? number_format((float) $latest["price_{$k}k_gram"], 2) : '-' ?></td>
+                <td data-label="Per 8g">LKR <?= $latest ? number_format((float) $latest["price_{$k}k_8g"], 2) : '-' ?></td>
+                <td data-label="Per troy oz">LKR <?= $latest ? number_format((float) $latest["price_{$k}k_oz"], 2) : '-' ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

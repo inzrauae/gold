@@ -54,6 +54,12 @@
         ];
 
         var ctx = canvas.getContext('2d');
+        var allSeries = series;
+        var hoverIdx = -1;
+        var geo = null;
+        var cssVar = function (n, f) {
+            return (getComputedStyle(document.documentElement).getPropertyValue(n) || '').trim() || f;
+        };
 
         function draw() {
             var parent = canvas.parentElement;
@@ -108,7 +114,7 @@
                 return padding.top + plotH - ((v - min) / (max - min)) * plotH;
             }
 
-            ctx.strokeStyle = 'rgba(212, 175, 55, 0.12)';
+            ctx.strokeStyle = cssVar('--chart-grid', 'rgba(212, 175, 55, 0.12)');
             ctx.lineWidth = 1;
             ctx.fillStyle = '#857a6c';
             ctx.font = '11px system-ui, -apple-system, sans-serif';
@@ -133,6 +139,21 @@
                 ctx.fillText(String(series[i].date).slice(5), x(i), cssHeight - padding.bottom + 8);
             });
 
+            geo = { x: x };
+
+            var grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + plotH);
+            grad.addColorStop(0, 'rgba(212, 175, 55, 0.22)');
+            grad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+            ctx.beginPath();
+            series.forEach(function (row, i) {
+                if (i === 0) ctx.moveTo(x(i), y(row['22k'])); else ctx.lineTo(x(i), y(row['22k']));
+            });
+            ctx.lineTo(x(series.length - 1), padding.top + plotH);
+            ctx.lineTo(x(0), padding.top + plotH);
+            ctx.closePath();
+            ctx.fillStyle = grad;
+            ctx.fill();
+
             lines.forEach(function (line) {
                 ctx.beginPath();
                 var started = false;
@@ -147,6 +168,46 @@
                 ctx.stroke();
             });
 
+            if (hoverIdx >= 0 && hoverIdx < series.length) {
+                var hx = x(hoverIdx), row = series[hoverIdx];
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.5)';
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(hx, padding.top);
+                ctx.lineTo(hx, padding.top + plotH);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                lines.forEach(function (line) {
+                    if (typeof row[line.key] !== 'number') return;
+                    ctx.beginPath();
+                    ctx.arc(hx, y(row[line.key]), 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = line.color;
+                    ctx.fill();
+                });
+                var text = [String(row.date)].concat(lines.map(function (l) {
+                    return l.label + '  ' + Math.round(row[l.key]).toLocaleString('en-LK');
+                }));
+                ctx.font = '12px system-ui, -apple-system, sans-serif';
+                var bw = 0;
+                text.forEach(function (t) { bw = Math.max(bw, ctx.measureText(t).width); });
+                bw += 20;
+                var bh = text.length * 17 + 10;
+                var bx = hx + 12 + bw > cssWidth - 4 ? hx - 12 - bw : hx + 12;
+                var by = padding.top + 4;
+                ctx.fillStyle = cssVar('--chart-tip', 'rgba(16, 13, 10, 0.94)');
+                ctx.strokeStyle = 'rgba(212, 175, 55, 0.45)';
+                ctx.beginPath();
+                if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 8); else ctx.rect(bx, by, bw, bh);
+                ctx.fill();
+                ctx.stroke();
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                text.forEach(function (t, i) {
+                    ctx.fillStyle = i === 0 ? cssVar('--text-dim', '#bfb3a0') : cssVar('--text', '#f5efe0');
+                    ctx.fillText(t, bx + 10, by + 14 + i * 17);
+                });
+            }
+
             ctx.textAlign = 'left';
             ctx.textBaseline = 'alphabetic';
             var lx = padding.left;
@@ -154,12 +215,44 @@
             lines.forEach(function (line) {
                 ctx.fillStyle = line.color;
                 ctx.fillRect(lx, ly - 8, 10, 10);
-                ctx.fillStyle = '#f5efe0';
+                ctx.fillStyle = cssVar('--text', '#f5efe0');
                 ctx.font = '11px system-ui, -apple-system, sans-serif';
                 ctx.fillText(line.label, lx + 14, ly);
                 lx += ctx.measureText(line.label).width + 30;
             });
         }
+
+        function pointer(e) {
+            if (!geo) return;
+            var rect = canvas.getBoundingClientRect();
+            var px = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            var best = -1, bd = Infinity;
+            series.forEach(function (r, i) {
+                var d = Math.abs(geo.x(i) - px);
+                if (d < bd) { bd = d; best = i; }
+            });
+            if (best !== hoverIdx) { hoverIdx = best; draw(); }
+        }
+        function leave() { if (hoverIdx !== -1) { hoverIdx = -1; draw(); } }
+        canvas.style.touchAction = 'pan-y';
+        canvas.addEventListener('mousemove', pointer);
+        canvas.addEventListener('mouseleave', leave);
+        canvas.addEventListener('touchstart', pointer, { passive: true });
+        canvas.addEventListener('touchmove', pointer, { passive: true });
+        canvas.addEventListener('touchend', leave);
+
+        document.querySelectorAll('.seg-btn[data-range]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var n = parseInt(btn.getAttribute('data-range'), 10) || 90;
+                series = allSeries.slice(-n);
+                hoverIdx = -1;
+                document.querySelectorAll('.seg-btn[data-range]').forEach(function (b) {
+                    b.classList.toggle('is-active', b === btn);
+                });
+                draw();
+            });
+        });
+        document.addEventListener('themechange', draw);
 
         draw();
         var resizeTimer;
@@ -169,12 +262,27 @@
         });
     }
 
+    function initTheme() {
+        var btn = document.getElementById('theme-toggle');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+            var root = document.documentElement;
+            var cur = root.getAttribute('data-theme') || 'dark';
+            var next = cur === 'light' ? 'dark' : 'light';
+            root.setAttribute('data-theme', next);
+            try { localStorage.setItem('theme', next); } catch (e) {}
+            document.dispatchEvent(new Event('themechange'));
+        });
+    }
+
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
+            initTheme();
             initCalculator();
             initChart();
         });
     } else {
+        initTheme();
         initCalculator();
         initChart();
     }

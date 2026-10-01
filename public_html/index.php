@@ -28,10 +28,28 @@ if (Env::bool('FORCE_HTTPS', false)) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }
 
+// Baseline security + caching headers for every public response (admin stays uncached).
+header('X-Content-Type-Options: nosniff');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+header('X-Frame-Options: SAMEORIGIN');
+header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
+$reqPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+if (strncmp($reqPath, '/admin', 6) !== 0 && strncmp($reqPath, '/cron', 5) !== 0) {
+    header('Cache-Control: public, max-age=120, stale-while-revalidate=600');
+} else {
+    header('Cache-Control: no-store');
+}
+
 $router = new Router();
 
 // Pages
 $router->get('/', [new PageController(), 'home']);
+$router->get('/si', function (Request $r) {
+    (new PageController())->localizedHome($r, 'si');
+});
+$router->get('/ta', function (Request $r) {
+    (new PageController())->localizedHome($r, 'ta');
+});
 $router->get('/gold-price-today-sri-lanka', [new PageController(), 'todayBreakdown']);
 $router->get('/gold-price-{slug}-sri-lanka', function (Request $r, string $slug) {
     (new PageController())->purityOrWeight($r, $slug);
@@ -62,6 +80,8 @@ $router->get('/sitemap.xml', [new FeedController(), 'sitemap']);
 $router->get('/robots.txt', [new FeedController(), 'robots']);
 $router->get('/llms.txt', [new FeedController(), 'llms']);
 $router->get('/og-image.png', [new FeedController(), 'ogImage']);
+$router->get('/favicon.ico', [new FeedController(), 'logo']);
+$router->get('/manifest.webmanifest', [new FeedController(), 'manifest']);
 $router->get('/logo.png', [new FeedController(), 'logo']);
 $router->get('/healthz', [new FeedController(), 'healthz']);
 $router->get('/cron/run', [new FeedController(), 'cronRun']);

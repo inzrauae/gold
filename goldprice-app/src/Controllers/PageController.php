@@ -7,6 +7,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\Core\View;
 use App\Services\Content;
+use App\Services\Lang;
 use App\Services\NewsService;
 use App\Services\PriceRepository;
 use App\Services\Scheduler;
@@ -64,6 +65,50 @@ class PageController
             'faq' => Content::faq(),
             'trend' => $trend,
             'date' => $date,
+        ]));
+    }
+
+    public function localizedHome(Request $request, string $lang): void
+    {
+        if (!Lang::valid($lang)) {
+            Response::notFound();
+            return;
+        }
+        $t = Lang::strings($lang);
+        $latest = $this->repository->latest();
+        $shortDate = Seo::todayShort();
+        $path = Lang::path($lang);
+        $n = static fn ($v): string => number_format((float) $v, 2);
+
+        $title = sprintf($t['title'], $shortDate);
+        $description = $latest
+            ? sprintf($t['desc'], $n($latest['price_22k_gram']), $n($latest['price_24k_gram']))
+            : $t['name'];
+
+        if ($latest) {
+            $t['faq'][0]['a'] = sprintf($t['faq'][0]['a'], $n($latest['price_22k_8g']), $n($latest['price_24k_8g']));
+        } else {
+            $t['faq'][0]['a'] = str_replace(['රු. %s ක් ද', 'ரூ. %s'], ['', ''], $t['faq'][0]['a']);
+        }
+
+        $page = Seo::webPageSchema($path, $title, Seo::iso8601($latest['created_at'] ?? null), $description);
+        $page['inLanguage'] = Lang::LOCALES[$lang];
+        $jsonLd = [
+            Seo::organizationSchema(),
+            $page,
+            Seo::faqSchema($t['faq']),
+            Seo::breadcrumbSchema([['name' => 'Home', 'url' => '/'], ['name' => $t['name'], 'url' => $path]]),
+        ];
+
+        Response::html(View::layout('home-local', [
+            'title' => $title,
+            'description' => $description,
+            'canonical' => $path,
+            'updatedAt' => $latest['created_at'] ?? null,
+            'jsonLd' => $jsonLd,
+            'latest' => $latest,
+            't' => $t,
+            'lang' => $lang,
         ]));
     }
 

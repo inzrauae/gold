@@ -26,7 +26,8 @@ class Router
         $path = $request->path === '' ? '/' : $request->path;
 
         foreach ($this->routes as [$method, $pattern, $handler]) {
-            if ($method !== $request->method) {
+            $requestMethod = $request->method === 'HEAD' ? 'GET' : $request->method;
+            if ($method !== $requestMethod) {
                 continue;
             }
             $params = $this->match($pattern, $path);
