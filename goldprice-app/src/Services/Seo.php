@@ -282,24 +282,19 @@ class Seo
             }
         }
 
+        // Plain sitemaps.org format. hreflang alternates for /, /si and /ta are declared in each
+        // page's <head> (layout.php), so they are not repeated here as xhtml:link entries.
         $xml = '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
-        // Human-readable view in browsers only; search engines ignore the stylesheet.
-        $xml .= '<?xml-stylesheet type="text/xsl" href="/sitemap.xsl"?>' . "\n";
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">' . "\n";
-        $alt = '';
-        foreach (['en-LK' => '/', 'si-LK' => '/si', 'ta-LK' => '/ta', 'x-default' => '/'] as $hl => $ap) {
-            $alt .= '<xhtml:link rel="alternate" hreflang="' . $hl . '" href="' . htmlspecialchars(self::siteUrl($ap), ENT_XML1) . '"/>';
-        }
+        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' . "\n";
         foreach ($entries as [$path, $lastmod, $changefreq, $priority]) {
-            $xml .= '  <url>'
-                . '<loc>' . htmlspecialchars(self::siteUrl($path), ENT_XML1) . '</loc>'
-                . (in_array($path, ['/', '/si', '/ta'], true) ? $alt : '')
-                . '<lastmod>' . $lastmod . '</lastmod>'
-                . '<changefreq>' . $changefreq . '</changefreq>'
-                . '<priority>' . $priority . '</priority>'
-                . '</url>' . "\n";
+            $xml .= "  <url>\n"
+                . '    <loc>' . htmlspecialchars(self::siteUrl($path), ENT_XML1) . "</loc>\n"
+                . "    <lastmod>{$lastmod}</lastmod>\n"
+                . "    <changefreq>{$changefreq}</changefreq>\n"
+                . "    <priority>{$priority}</priority>\n"
+                . "  </url>\n";
         }
-        $xml .= '</urlset>';
+        $xml .= "</urlset>\n";
 
         return $xml;
     }

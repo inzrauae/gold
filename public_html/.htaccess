@@ -34,5 +34,3 @@ RewriteRule ^ index.php [L]
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# Sitemap stylesheet must be served as XML for browsers to apply it
-AddType application/xml .xsl
