@@ -65,18 +65,28 @@ $selectedType = $old['enquiry_type'] ?? '';
 
 <section class="wrap">
     <div class="contact-cards">
-        <a class="contact-card" href="mailto:<?= View::e($contact['email']) ?>">
-            <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
-            <span class="card-label">Email us</span>
-            <span class="card-value"><?= str_replace('@', '<wbr>@', View::e($contact['email'])) ?></span>
-        </a>
+        <?php if ($contact['location'] !== ''): ?>
+        <div class="contact-card">
+            <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+            <span class="card-label">Visit us</span>
+            <span class="card-value"><?= implode('<br>', array_map([View::class, 'e'], array_map('trim', explode(',', $contact['location'])))) ?></span>
+        </div>
+        <?php endif; ?>
         <?php if ($telLink): ?>
         <a class="contact-card" href="<?= View::e($telLink) ?>">
             <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/></svg></span>
             <span class="card-label">Call us</span>
             <span class="card-value"><?= View::e($contact['phone']) ?></span>
+            <?php if ($contact['hours'] !== ''): ?>
+            <span class="card-note"><?= View::e($contact['hours']) ?></span>
+            <?php endif; ?>
         </a>
         <?php endif; ?>
+        <a class="contact-card" href="mailto:<?= View::e($contact['email']) ?>">
+            <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+            <span class="card-label">Email us</span>
+            <span class="card-value"><?= str_replace('@', '<wbr>@', View::e($contact['email'])) ?></span>
+        </a>
         <?php if ($waLink): ?>
         <a class="contact-card" href="<?= View::e($waLink) ?>" target="_blank" rel="noopener">
             <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
@@ -84,23 +94,10 @@ $selectedType = $old['enquiry_type'] ?? '';
             <span class="card-value"><?= View::e(preg_match('/^94(\d{2})(\d{3})(\d{4})$/', $contact['whatsapp'], $m) ? "+94 {$m[1]} {$m[2]} {$m[3]}" : '+' . $contact['whatsapp']) ?></span>
         </a>
         <?php endif; ?>
-        <?php if ($contact['location'] !== ''): ?>
-        <div class="contact-card">
-            <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-            <span class="card-label">Visit us</span>
-            <span class="card-value"><?= View::e($contact['location']) ?></span>
-        </div>
-        <?php endif; ?>
     </div>
 
-    <?php if ($contact['hours'] !== '' || $contact['social'] || $contact['company'] !== ''): ?>
+    <?php if ($contact['social'] || $contact['company'] !== ''): ?>
     <div class="contact-meta">
-        <?php if ($contact['hours'] !== ''): ?>
-        <span class="meta-item">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            <?= View::e($contact['hours']) ?>
-        </span>
-        <?php endif; ?>
         <?php if ($contact['company'] !== ''): ?>
         <span class="meta-item">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg>

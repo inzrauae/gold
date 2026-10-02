@@ -2783,3 +2783,14 @@ a.contact-card:focus-visible {
     font-size: 0.95rem;
     overflow-wrap: break-word;
 }
+
+.contact-card .icon-badge {
+    grid-row: 1 / span 3;
+}
+
+.card-note {
+    grid-column: 2;
+    margin-top: 2px;
+    font-size: 0.8rem;
+    color: var(--text-faint);
+}
