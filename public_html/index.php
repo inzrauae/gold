@@ -28,6 +28,15 @@ if (Env::bool('FORCE_HTTPS', false)) {
     header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
 }
 
+// One canonical hostname in production (e.g. example.lk -> www.example.lk), as set by APP_URL.
+$canonicalHost = parse_url((string) Env::get('APP_URL', ''), PHP_URL_HOST);
+$requestHost = strtolower(explode(':', (string) ($_SERVER['HTTP_HOST'] ?? ''))[0]);
+if ($canonicalHost && Env::get('APP_ENV') === 'production' && $requestHost !== '' && $requestHost !== strtolower($canonicalHost)) {
+    $scheme = Env::bool('FORCE_HTTPS', false) ? 'https' : (parse_url((string) Env::get('APP_URL'), PHP_URL_SCHEME) ?: 'https');
+    Response::redirect($scheme . '://' . $canonicalHost . ($_SERVER['REQUEST_URI'] ?? '/'), 301);
+    exit;
+}
+
 // Baseline security + caching headers for every public response (admin stays uncached).
 header('X-Content-Type-Options: nosniff');
 header('Referrer-Policy: strict-origin-when-cross-origin');
