@@ -3,10 +3,13 @@
 namespace App\Controllers;
 
 use App\Core\Env;
+use App\Core\Logger;
+use App\Core\RateLimiter;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\View;
 use App\Services\Content;
+use App\Services\EnquiryService;
 use App\Services\Lang;
 use App\Services\NewsService;
 use App\Services\PriceRepository;
@@ -336,9 +339,22 @@ class PageController
 
     public function contact(Request $request): void
     {
+        $form = ['data' => [], 'errors' => []];
+        $status = 200;
+
+        if ($request->method === 'POST') {
+            header('Cache-Control: no-store');
+            $form = $this->handleEnquiry($request);
+            if ($form === null) {
+                Response::redirect('/contact?sent=1#enquiry', 303);
+                return;
+            }
+            $status = 422;
+        }
+
         Response::html(View::layout('contact', [
-            'title' => 'Contact - Gold Price Today Sri Lanka',
-            'description' => 'Contact Gold Price Today Sri Lanka for price corrections, data-source questions, or API and widget support.',
+            'title' => 'Advertise & Contact - Gold Price Today Sri Lanka',
+            'description' => 'Advertise to gold buyers, jewellers and investors across Sri Lanka. Banner, sponsorship and widget packages - or contact us about prices, the API and the widget.',
             'canonical' => '/contact',
             'jsonLd' => [
                 Seo::breadcrumbSchema([
@@ -346,8 +362,48 @@ class PageController
                     ['name' => 'Contact', 'url' => '/contact'],
                 ]),
             ],
-            'adminEmail' => Env::get('ADMIN_EMAIL', 'contact@example.lk'),
-        ]));
+            'contact' => [
+                'email' => Env::get('CONTACT_EMAIL') ?: Env::get('ADMIN_EMAIL', 'contact@example.lk'),
+                'phone' => (string) Env::get('CONTACT_PHONE', ''),
+                'whatsapp' => preg_replace('/\D+/', '', (string) Env::get('CONTACT_WHATSAPP', '')),
+                'location' => (string) Env::get('CONTACT_LOCATION', 'Colombo, Sri Lanka'),
+            ],
+            'formToken' => EnquiryService::formToken(),
+            'old' => $form['data'],
+            'errors' => $form['errors'],
+            'sent' => $request->method === 'GET' && $request->query('sent') === '1',
+            'types' => EnquiryService::TYPES,
+            'budgets' => EnquiryService::BUDGETS,
+        ]), $status);
+    }
+
+    /**
+     * Returns null on success, or the submitted data plus errors to re-render the form.
+     *
+     * @return array{data: array<string, string>, errors: array<string, string>}|null
+     */
+    private function handleEnquiry(Request $request): ?array
+    {
+        $input = $request->body;
+
+        // Honeypot or invalid/too-fast token: pretend success so bots learn nothing.
+        if (trim((string) ($input['website'] ?? '')) !== '' || !EnquiryService::tokenValid((string) ($input['_t'] ?? ''))) {
+            Logger::info('enquiry_rejected_spam', ['ip' => $request->ip()]);
+            return null;
+        }
+
+        $result = EnquiryService::validate($input);
+        if (!empty($result['errors'])) {
+            return $result;
+        }
+
+        if (!RateLimiter::attempt('enquiry:' . $request->ip(), 5, 3600)) {
+            return ['data' => $result['data'], 'errors' => ['form' => 'Too many messages from your connection. Please try again later or email us directly.']];
+        }
+
+        EnquiryService::store($result['data'], $request->ip());
+        EnquiryService::notifyAdmin($result['data']);
+        return null;
     }
 
     public function privacy(Request $request): void

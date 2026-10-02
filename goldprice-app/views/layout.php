@@ -24,6 +24,7 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
 <title><?= View::e($title) ?></title>
 <meta name="description" content="<?= View::e($description) ?>">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="google-site-verification" content="cMSnr--OIdPpOlJo01EA8EkQE_dJEX6ybZhjW6VvULo">
 <link rel="canonical" href="<?= View::e($canonical) ?>">
 <?php if ($showAlternates): ?>
 <link rel="alternate" hreflang="en-LK" href="<?= View::e(Seo::siteUrl('/')) ?>">
@@ -90,6 +91,7 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
             <a href="/gold-price-widget">Widget</a>
             <a href="/data-sources">Sources</a>
         </nav>
+        <a class="nav-cta" href="/contact">Advertise</a>
         <nav class="lang-switch" aria-label="Language">
             <a href="/" hreflang="en-LK" lang="en"<?= $lang === 'en' ? ' aria-current="true"' : '' ?>>EN</a>
             <a href="/si" hreflang="si-LK" lang="si"<?= $lang === 'si' ? ' aria-current="true"' : '' ?>>සිං</a>
@@ -103,19 +105,40 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
 </main>
 <footer class="site-footer">
     <div class="wrap">
-        <p><strong>Not official retail prices.</strong> Verified, indicative market-rate conversions only.
+        <div class="footer-grid">
+            <div class="footer-about">
+                <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span><?= View::e(Seo::siteName()) ?></a>
+                <p>Verified, indicative gold prices for Sri Lanka - 24K, 22K, 21K and 18K, updated automatically from independent market sources.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Prices</h3>
+                <a href="/gold-price-today-sri-lanka">Today's breakdown</a>
+                <a href="/gold-price-history">Price history</a>
+                <a href="/#calculator">Gold calculator</a>
+                <a href="/data-sources">Data sources</a>
+            </div>
+            <div class="footer-col">
+                <h3>Developers</h3>
+                <a href="/gold-price-api">Free API</a>
+                <a href="/gold-price-widget">Widget</a>
+                <a href="/rss/gold-price.xml">RSS feed</a>
+                <a href="/sitemap.xml">Sitemap</a>
+            </div>
+            <div class="footer-col">
+                <h3>Company</h3>
+                <a href="/about">About</a>
+                <a href="/contact">Advertise with us</a>
+                <a href="/contact#enquiry">Contact</a>
+                <a href="/privacy">Privacy</a>
+                <a href="/terms">Terms</a>
+            </div>
+        </div>
+        <p class="footer-note"><strong>Not official retail prices.</strong> Verified, indicative market-rate conversions only.
         See <a href="/data-sources">data sources &amp; methodology</a>.</p>
         <p class="fine-print">
             &copy; <?= date('Y') ?> <?= View::e(Seo::siteName()) ?> ·
             <a href="/si" hreflang="si-LK" lang="si">සිංහල</a> ·
             <a href="/ta" hreflang="ta-LK" lang="ta">தமிழ்</a> ·
-            <a href="/about">About</a> ·
-            <a href="/contact">Contact</a> ·
-            <a href="/privacy">Privacy</a> ·
-            <a href="/terms">Terms</a> ·
-            <a href="/gold-price-api">API</a> ·
-            <a href="/rss/gold-price.xml">RSS</a> ·
-            <a href="/sitemap.xml">Sitemap</a> ·
             <a href="/admin/login">Admin</a>
         </p>
     </div>

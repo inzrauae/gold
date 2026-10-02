@@ -9,6 +9,7 @@ use App\Core\RateLimiter;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\View;
+use App\Services\EnquiryService;
 use App\Services\PriceRepository;
 use App\Services\PriceUpdater;
 use App\Services\ProviderGateway;
@@ -83,6 +84,7 @@ class AdminController
                 'FX secondary' => $gateway->fxSecondary(),
             ],
             'recentLogLines' => Logger::tail(50),
+            'enquiries' => EnquiryService::recent(25),
         ]));
     }
 

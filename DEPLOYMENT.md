@@ -6,6 +6,20 @@ Redis is needed.
 
 Throughout this guide replace `USER` with your cPanel username and `www.example.lk` with your domain.
 
+## Quick deploy with Terminal (www.goldpricetoday.lk)
+
+With PHP 8.1+ and `pdo_sqlite` enabled for the domain (step 1) and SSL active (step 7), run this in
+cPanel → **Terminal**. It clones the repo to `~/gold-src`, puts the app in `~/goldprice-app`, copies
+the web files into `~/public_html` (backing up what was there first), creates `.env` with a SQLite
+database, fetches the first price and installs the cron job. Run the same command again to update.
+
+```bash
+cd ~ && (git -C gold-src pull --ff-only 2>/dev/null || git clone -b main https://github.com/inzrauae/gold.git gold-src) && ADMIN_EMAIL=you@example.lk bash gold-src/deploy.sh
+```
+
+Then create your admin login with the command it prints, and fill in the `CONTACT_*` and API key
+settings in `~/goldprice-app/.env`. The rest of this guide is the manual route (and MySQL setup).
+
 ---
 
 ## 1. Choose PHP version and extensions

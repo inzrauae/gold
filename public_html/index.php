@@ -60,6 +60,8 @@ $router->get('/gold-price-widget/how-to-use', [new PageController(), 'widgetGuid
 $router->get('/gold-price-api', [new PageController(), 'apiDocs']);
 $router->get('/about', [new PageController(), 'about']);
 $router->get('/contact', [new PageController(), 'contact']);
+$router->post('/contact', [new PageController(), 'contact']);
+$router->get('/advertise', fn () => Response::redirect('/contact', 301));
 $router->get('/privacy', [new PageController(), 'privacy']);
 $router->get('/terms', [new PageController(), 'terms']);
 

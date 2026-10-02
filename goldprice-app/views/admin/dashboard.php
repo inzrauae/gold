@@ -1,7 +1,9 @@
 <?php
 use App\Core\Csrf;
 use App\Core\View;
+use App\Services\EnquiryService;
 /** @var array $user */
+/** @var array $enquiries */
 /** @var array|null $latest */
 /** @var array $logs */
 /** @var array $pending */
@@ -86,6 +88,34 @@ use App\Core\View;
             <?php endforeach; ?>
             </tbody>
         </table>
+    </section>
+
+    <section>
+        <h2>Advertising Enquiries</h2>
+        <?php if (empty($enquiries)): ?>
+        <p class="muted">No enquiries yet. They arrive from the form on <a href="/contact">/contact</a>.</p>
+        <?php else: ?>
+        <div class="table-scroll">
+        <table class="price-table">
+            <thead><tr><th>Received</th><th>From</th><th>Interest</th><th>Budget</th><th>Message</th></tr></thead>
+            <tbody>
+            <?php foreach ($enquiries as $q): ?>
+                <tr>
+                    <td><?= View::e($q['created_at']) ?></td>
+                    <td>
+                        <strong><?= View::e($q['name']) ?></strong><?= $q['company'] ? ' · ' . View::e($q['company']) : '' ?><br>
+                        <a href="mailto:<?= View::e($q['email']) ?>"><?= View::e($q['email']) ?></a>
+                        <?= $q['phone'] ? '<br>' . View::e($q['phone']) : '' ?>
+                    </td>
+                    <td><?= View::e(EnquiryService::TYPES[$q['enquiry_type']] ?? $q['enquiry_type']) ?></td>
+                    <td><?= View::e(EnquiryService::BUDGETS[$q['budget'] ?? ''] ?? '-') ?></td>
+                    <td style="white-space: pre-line; min-width: 240px"><?= View::e($q['message']) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+        </div>
+        <?php endif; ?>
     </section>
 
     <section>
