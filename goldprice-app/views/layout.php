@@ -109,6 +109,25 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
             <div class="footer-about">
                 <a class="brand" href="/"><span class="brand-mark" aria-hidden="true"></span><?= View::e(Seo::siteName()) ?></a>
                 <p>Verified, indicative gold prices for Sri Lanka - 24K, 22K, 21K and 18K, updated automatically from independent market sources.</p>
+                <?php $footerContact = Seo::contactInfo(); ?>
+                <ul class="footer-contact">
+                    <?php if ($footerContact['tel'] !== ''): ?>
+                    <li><a href="<?= View::e($footerContact['tel']) ?>"><?= View::e($footerContact['phone']) ?></a></li>
+                    <?php endif; ?>
+                    <?php if ($footerContact['email'] !== ''): ?>
+                    <li><a href="mailto:<?= View::e($footerContact['email']) ?>"><?= View::e($footerContact['email']) ?></a></li>
+                    <?php endif; ?>
+                    <?php if ($footerContact['location'] !== ''): ?>
+                    <li><?= View::e($footerContact['location']) ?></li>
+                    <?php endif; ?>
+                </ul>
+                <?php if ($footerContact['social']): ?>
+                <div class="social-links">
+                    <?php foreach ($footerContact['social'] as $network => $url): ?>
+                    <?= View::render('partials/social-icon', ['network' => $network, 'url' => $url]) ?>
+                    <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
             </div>
             <div class="footer-col">
                 <h3>Prices</h3>
@@ -136,7 +155,7 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
         <p class="footer-note"><strong>Not official retail prices.</strong> Verified, indicative market-rate conversions only.
         See <a href="/data-sources">data sources &amp; methodology</a>.</p>
         <p class="fine-print">
-            &copy; <?= date('Y') ?> <?= View::e(Seo::siteName()) ?> ·
+            &copy; <?= date('Y') ?> <?= View::e(Seo::siteName()) ?><?= $footerContact['company'] !== '' ? ' - operated by ' . View::e($footerContact['company']) : '' ?> ·
             <a href="/si" hreflang="si-LK" lang="si">සිංහල</a> ·
             <a href="/ta" hreflang="ta-LK" lang="ta">தமிழ்</a> ·
             <a href="/admin/login">Admin</a>

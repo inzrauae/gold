@@ -2,7 +2,7 @@
 
 use App\Core\View;
 
-/** @var array{email: string, phone: string, whatsapp: string, location: string} $contact */
+/** @var array{company: string, email: string, phone: string, tel: string, whatsapp: string, location: string, hours: string, social: array<string, string>} $contact */
 /** @var string $formToken */
 /** @var array<string, string> $old */
 /** @var array<string, string> $errors */
@@ -20,7 +20,7 @@ $invalid = static fn (string $key): string => isset($errors[$key]) ? ' aria-inva
 $waLink = $contact['whatsapp'] !== ''
     ? 'https://wa.me/' . $contact['whatsapp'] . '?text=' . rawurlencode('Hi, I would like to advertise on ' . \App\Services\Seo::siteName() . '.')
     : '';
-$telLink = $contact['phone'] !== '' ? 'tel:' . preg_replace('/[^0-9+]/', '', $contact['phone']) : '';
+$telLink = $contact['tel'];
 $selectedType = $old['enquiry_type'] ?? '';
 ?>
 <section class="ad-hero">
@@ -68,7 +68,7 @@ $selectedType = $old['enquiry_type'] ?? '';
         <a class="contact-card" href="mailto:<?= View::e($contact['email']) ?>">
             <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
             <span class="card-label">Email us</span>
-            <span class="card-value"><?= View::e($contact['email']) ?></span>
+            <span class="card-value"><?= str_replace('@', '<wbr>@', View::e($contact['email'])) ?></span>
         </a>
         <?php if ($telLink): ?>
         <a class="contact-card" href="<?= View::e($telLink) ?>">
@@ -81,15 +81,41 @@ $selectedType = $old['enquiry_type'] ?? '';
         <a class="contact-card" href="<?= View::e($waLink) ?>" target="_blank" rel="noopener">
             <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 21l2.1-5.4A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
             <span class="card-label">WhatsApp</span>
-            <span class="card-value">+<?= View::e($contact['whatsapp']) ?></span>
+            <span class="card-value"><?= View::e(preg_match('/^94(\d{2})(\d{3})(\d{4})$/', $contact['whatsapp'], $m) ? "+94 {$m[1]} {$m[2]} {$m[3]}" : '+' . $contact['whatsapp']) ?></span>
         </a>
         <?php endif; ?>
+        <?php if ($contact['location'] !== ''): ?>
         <div class="contact-card">
             <span class="icon-badge"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s7-6.1 7-12a7 7 0 0 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
-            <span class="card-label">Based in</span>
+            <span class="card-label">Visit us</span>
             <span class="card-value"><?= View::e($contact['location']) ?></span>
         </div>
+        <?php endif; ?>
     </div>
+
+    <?php if ($contact['hours'] !== '' || $contact['social'] || $contact['company'] !== ''): ?>
+    <div class="contact-meta">
+        <?php if ($contact['hours'] !== ''): ?>
+        <span class="meta-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <?= View::e($contact['hours']) ?>
+        </span>
+        <?php endif; ?>
+        <?php if ($contact['company'] !== ''): ?>
+        <span class="meta-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h1M14 9h1M9 13h1M14 13h1M9 17h1M14 17h1"/></svg>
+            Operated by <?= View::e($contact['company']) ?>
+        </span>
+        <?php endif; ?>
+        <?php if ($contact['social']): ?>
+        <span class="social-links">
+            <?php foreach ($contact['social'] as $network => $url): ?>
+            <?= View::render('partials/social-icon', ['network' => $network, 'url' => $url]) ?>
+            <?php endforeach; ?>
+        </span>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
 
     <div class="section-head">
         <span class="eyebrow">Placements</span>

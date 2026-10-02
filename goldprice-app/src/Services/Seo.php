@@ -51,9 +51,36 @@ class Seo
 
     // --- Structured data (JSON-LD) ------------------------------------------------
 
+    /**
+     * Public contact details from .env (CONTACT_*, SOCIAL_*); empty values are hidden on the site.
+     *
+     * @return array{company: string, email: string, phone: string, tel: string, whatsapp: string, location: string, hours: string, social: array<string, string>}
+     */
+    public static function contactInfo(): array
+    {
+        $phone = trim((string) Env::get('CONTACT_PHONE', ''));
+        $social = array_filter([
+            'Facebook' => trim((string) Env::get('SOCIAL_FACEBOOK', '')),
+            'LinkedIn' => trim((string) Env::get('SOCIAL_LINKEDIN', '')),
+            'Instagram' => trim((string) Env::get('SOCIAL_INSTAGRAM', '')),
+        ], static fn (string $url): bool => (bool) preg_match('#^https://#', $url));
+
+        return [
+            'company' => trim((string) Env::get('CONTACT_COMPANY', '')),
+            'email' => (string) (Env::get('CONTACT_EMAIL') ?: Env::get('ADMIN_EMAIL', '')),
+            'phone' => $phone,
+            'tel' => $phone !== '' ? 'tel:' . preg_replace('/[^0-9+]/', '', $phone) : '',
+            'whatsapp' => (string) preg_replace('/\D+/', '', (string) Env::get('CONTACT_WHATSAPP', '')),
+            'location' => trim((string) Env::get('CONTACT_LOCATION', '')),
+            'hours' => trim((string) Env::get('CONTACT_HOURS', '')),
+            'social' => $social,
+        ];
+    }
+
     public static function organizationSchema(): array
     {
-        return [
+        $contact = self::contactInfo();
+        $schema = [
             '@type' => 'Organization',
             '@id' => self::siteUrl('/#organization'),
             'name' => self::siteName(),
@@ -61,6 +88,23 @@ class Seo
             'logo' => self::logoUrl(),
             'areaServed' => ['@type' => 'Country', 'name' => 'Sri Lanka'],
         ];
+        if ($contact['company'] !== '') {
+            $schema['parentOrganization'] = ['@type' => 'Organization', 'name' => $contact['company']];
+        }
+        if ($contact['email'] !== '' || $contact['phone'] !== '') {
+            $schema['contactPoint'] = array_filter([
+                '@type' => 'ContactPoint',
+                'contactType' => 'advertising',
+                'email' => $contact['email'],
+                'telephone' => $contact['phone'],
+                'areaServed' => 'LK',
+                'availableLanguage' => ['English', 'Sinhala', 'Tamil'],
+            ]);
+        }
+        if ($contact['social']) {
+            $schema['sameAs'] = array_values($contact['social']);
+        }
+        return $schema;
     }
 
     public static function websiteSchema(): array

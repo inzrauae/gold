@@ -362,12 +362,7 @@ class PageController
                     ['name' => 'Contact', 'url' => '/contact'],
                 ]),
             ],
-            'contact' => [
-                'email' => Env::get('CONTACT_EMAIL') ?: Env::get('ADMIN_EMAIL', 'contact@example.lk'),
-                'phone' => (string) Env::get('CONTACT_PHONE', ''),
-                'whatsapp' => preg_replace('/\D+/', '', (string) Env::get('CONTACT_WHATSAPP', '')),
-                'location' => (string) Env::get('CONTACT_LOCATION', 'Colombo, Sri Lanka'),
-            ],
+            'contact' => Seo::contactInfo(),
             'formToken' => EnquiryService::formToken(),
             'old' => $form['data'],
             'errors' => $form['errors'],

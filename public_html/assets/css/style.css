@@ -2698,3 +2698,88 @@ a.contact-card:focus-visible {
         line-height: 1.15;
     }
 }
+
+/* Contact details: hours / company / social row and footer contact list */
+.contact-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 26px;
+    margin-top: 18px;
+    font-size: 0.9rem;
+    color: var(--text-dim);
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.meta-item svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.social-links {
+    display: inline-flex;
+    gap: 8px;
+}
+
+.social-link {
+    display: inline-grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--border-gold);
+    background: var(--surface);
+    color: var(--gold-light);
+    transition: transform 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.social-link:hover,
+.social-link:focus-visible {
+    transform: translateY(-2px);
+    background: var(--gold);
+    color: #0a0908;
+    text-decoration: none;
+}
+
+.social-link svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+}
+
+.footer-contact {
+    list-style: none;
+    margin: 14px 0 14px;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 0.88rem;
+    color: var(--text-dim);
+}
+
+.site-footer .social-links {
+    margin-top: 2px;
+}
+
+.footer-contact li {
+    margin: 0;
+}
+
+.contact-card .card-value {
+    font-size: 0.95rem;
+    overflow-wrap: break-word;
+}
