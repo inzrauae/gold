@@ -152,8 +152,10 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
                 <a href="/terms">Terms</a>
             </div>
         </div>
-        <p class="footer-note"><strong>Not official retail prices.</strong> Verified, indicative market-rate conversions only.
-        See <a href="/data-sources">data sources &amp; methodology</a>.</p>
+        <p class="footer-note">Live gold prices in Sri Lanka, converted from international market rates and updated daily.
+        Jeweller prices vary with making charges and margins.
+        <a href="/data-sources">How we calculate</a>.</p>
+        <p class="footer-note">Website powered by Applantics (Pvt) Ltd.</p>
         <p class="fine-print">
             &copy; <?= date('Y') ?> <?= View::e(Seo::siteName()) ?><?= $footerContact['company'] !== '' ? ' - operated by ' . View::e($footerContact['company']) : '' ?> ·
             <a href="/si" hreflang="si-LK" lang="si">සිංහල</a> ·
