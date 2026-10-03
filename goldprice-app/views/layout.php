@@ -158,7 +158,8 @@ $showAlternates = in_array($canonical, [Seo::siteUrl('/'), Seo::siteUrl('/si'), 
             &copy; <?= date('Y') ?> <?= View::e(Seo::siteName()) ?><?= $footerContact['company'] !== '' ? ' - operated by ' . View::e($footerContact['company']) : '' ?> ·
             <a href="/si" hreflang="si-LK" lang="si">සිංහල</a> ·
             <a href="/ta" hreflang="ta-LK" lang="ta">தமிழ்</a> ·
-            <a href="/admin/login">Admin</a>
+            <a href="/admin/login">Admin</a> ·
+            <a href="https://seoservice.lk" target="_blank" rel="noopener">SEO by seoservice.lk</a>
         </p>
     </div>
 </footer>

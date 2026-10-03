@@ -43,5 +43,10 @@ use App\Core\View;
     <p>Spotted a wrong figure, a broken page, or have a question about the methodology? See
         <a href="/contact">Contact</a>.</p>
 
+    <h2>Built and optimised by</h2>
+    <p>This site was built and search-optimised by
+        <a href="https://seoservice.lk" target="_blank" rel="noopener">SEO by seoservice.lk</a>,
+        a Sri Lankan SEO service.</p>
+
     <p class="fine-print">Site code last updated <?= View::e($lastUpdated) ?>.</p>
 </section>
